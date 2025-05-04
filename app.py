@@ -90,7 +90,7 @@ if archivo:
             st.subheader("Test generado")
             for i, row in preguntas_test.iterrows():
                 opciones = [row['Opción 1'], row['Opción 2'], row['Opción 3'], row['Opción 4']]
-                respuesta = st.radio(row['Pregunta'], opciones, key=row['Pregunta'])
+                respuesta = st.radio(row['Pregunta'], opciones, index=None, key=row['Pregunta'])
                 respuestas_usuario[row['Pregunta']] = respuesta
 
             if st.button("Calcular puntuación"):
