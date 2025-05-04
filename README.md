@@ -1,3 +1,3 @@
-# Generador de pruebas
+# Generador de proves
 
-Aplicación en Streamlit para generar tests por tema, con filtrado por dificultad, exportación de resultados y visualización gráfica.
+Aplicació en Streamlit per generar tests amb preguntes incloses, classificades per tema i dificultat, amb exportació i gràfiques.

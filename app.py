@@ -6,9 +6,11 @@ import streamlit as st
 import pandas as pd
 import random
 import io
+import os
 from datetime import datetime
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+import matplotlib.pyplot as plt
 
 # Cargar base de datos de preguntas desde un archivo CSV o Excel
 def cargar_preguntas(archivo):
@@ -65,6 +67,8 @@ def generar_pdf(nombre_usuario, resultados, puntuacion):
 st.title("Generador de Tests por Tema")
 
 archivo = st.file_uploader("Sube tu base de datos de preguntas (.csv o .xlsx)")
+if not archivo and os.path.exists("Preguntas_TEST1_tematitzat.xlsx"):
+    archivo = open("Preguntas_TEST1_tematitzat.xlsx", "rb")
 
 if archivo:
     df_preguntas = cargar_preguntas(archivo)
@@ -92,6 +96,9 @@ if archivo:
             if st.button("Calcular puntuación"):
                 puntuacion = 0
                 resultados = []
+                correctas = 0
+                incorrectas = 0
+                omitidas = 0
 
                 for i, row in preguntas_test.iterrows():
                     correcta = row[f"Opción {row['Correcta']}"]
@@ -99,8 +106,12 @@ if archivo:
                     correcta_bool = seleccionada == correcta
                     if correcta_bool:
                         puntuacion += 0.2
+                        correctas += 1
                     elif seleccionada is not None:
                         puntuacion -= 0.05
+                        incorrectas += 1
+                    else:
+                        omitidas += 1
                     resultados.append({
                         "Usuario": nombre_usuario,
                         "Pregunta": row['Pregunta'],
@@ -111,7 +122,19 @@ if archivo:
 
                 st.success(f"Puntuación final: {puntuacion:.2f} puntos")
 
-                # CSV download
+                st.subheader("Distribución de resultados")
+                fig1, ax1 = plt.subplots()
+                etiquetas = ['Correctas', 'Incorrectas', 'Omitidas']
+                valores = [correctas, incorrectas, omitidas]
+                ax1.pie(valores, labels=etiquetas, autopct='%1.1f%%', startangle=90)
+                ax1.axis('equal')
+                st.pyplot(fig1)
+
+                st.subheader("Resumen en barras")
+                fig2, ax2 = plt.subplots()
+                ax2.barh(etiquetas, valores, color=['green', 'red', 'gray'])
+                st.pyplot(fig2)
+
                 df_resultados = pd.DataFrame(resultados)
                 csv_buffer = io.StringIO()
                 df_resultados.to_csv(csv_buffer, index=False)
@@ -122,7 +145,6 @@ if archivo:
                     mime='text/csv'
                 )
 
-                # PDF download
                 pdf_buffer = generar_pdf(nombre_usuario, resultados, puntuacion)
                 st.download_button(
                     label="Descargar resultados en PDF",
