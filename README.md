@@ -1,3 +1,3 @@
 # Generador de proves
 
-Aplicació en Streamlit per generar tests amb preguntes classificades, sense respostes preseleccionades.
+App Streamlit amb preguntes classificades per tema i dificultat, gràfiques, exportació i temporitzador configurable.
